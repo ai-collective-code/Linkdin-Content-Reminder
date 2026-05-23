@@ -4,8 +4,17 @@ import type { SheetEvent } from '@/types/sheets'
 
 /* ── Auth ──────────────────────────────────────────────────── */
 function getAuthClient() {
-  const email      = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+
+  // Normalise the private key:
+  //  1. Strip surrounding double-quotes that Netlify UI may add
+  //  2. Convert literal two-char sequences  \n  →  real newlines
+  //  3. Also handle double-escaped  \\n  →  real newlines
+  let rawKey = process.env.GOOGLE_PRIVATE_KEY ?? ''
+  rawKey = rawKey.replace(/^"|"$/g, '')            // strip wrapping quotes
+  rawKey = rawKey.replace(/\\n/g, '\n')              // literal \n → newline
+  const privateKey = rawKey.trim() || undefined
+
   if (!email || !privateKey) {
     throw new Error('Missing Google credentials: GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY must be set in .env.local')
   }
