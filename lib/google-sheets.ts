@@ -2,21 +2,24 @@ import { google } from 'googleapis'
 import * as XLSX from 'xlsx'
 import type { SheetEvent } from '@/types/sheets'
 
-/* ── Auth ──────────────────────────────────────────────────── */
 function getAuthClient() {
+  // Option 1: Use an API key if provided (much simpler for Netlify)
+  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY !== 'YOUR_GOOGLE_API_KEY_HERE') {
+    return process.env.GOOGLE_API_KEY
+  }
+
+  // Option 2: Fallback to Service Account
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
 
   // Normalise the private key:
-  //  1. Strip surrounding double-quotes that Netlify UI may add
-  //  2. Convert literal two-char sequences  \n  →  real newlines
-  //  3. Also handle double-escaped  \\n  →  real newlines
   let rawKey = process.env.GOOGLE_PRIVATE_KEY ?? ''
   rawKey = rawKey.replace(/^"|"$/g, '')            // strip wrapping quotes
   rawKey = rawKey.replace(/\\n/g, '\n')              // literal \n → newline
   const privateKey = rawKey.trim() || undefined
 
   if (!email || !privateKey) {
-    throw new Error('Missing Google credentials: GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY must be set in .env.local')
+    console.warn('Missing Google credentials: Will attempt to fetch as a public sheet.')
+    return null
   }
   return new google.auth.JWT({
     email,
@@ -327,6 +330,30 @@ async function fetchAllTabsViaDrive(
   })
 }
 
+/* ── Method C: Public Export API (No Auth) ─────────────────── */
+async function fetchAllTabsViaPublicExport(sheetId: string): Promise<RawSheetData[]> {
+  console.log('[google-sheets] Fetching via Public Export (No Auth)')
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`Public export failed with status ${res.status}`)
+  }
+  const arrayBuffer = await res.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const workbook = XLSX.read(buffer, { type: 'buffer' })
+
+  console.log(`[google-sheets] Public Export — ${workbook.SheetNames.length} sheets`)
+
+  return workbook.SheetNames.map(sheetName => {
+    const worksheet = workbook.Sheets[sheetName]
+    if (!worksheet) return { rows: [], sheetName }
+    const rows = XLSX.utils.sheet_to_json<string[]>(worksheet, {
+      header: 1, defval: '', raw: false,
+    }) as string[][]
+    return { rows, sheetName }
+  })
+}
+
 /* ── In-process cache (2-minute TTL) ───────────────────────── */
 interface Cache {
   events:     SheetEvent[]
@@ -350,20 +377,26 @@ export async function fetchEvents(): Promise<SheetEvent[]> {
 
   // Fetch all tabs — try Sheets API first, Drive API as fallback
   let tabDataList: RawSheetData[]
-  try {
-    tabDataList = await fetchAllTabsViaSheets(auth, sheetId)
-    // If Sheets API returns very few tabs, it may have failed silently
-    if (tabDataList.length === 0) throw new Error('No tabs returned')
-  } catch (err) {
-    const msg = (err as Error).message ?? ''
-    if (
-      msg.includes('Office file') ||
-      msg.includes('not supported for this document') ||
-      msg.includes('No tabs returned')
-    ) {
-      tabDataList = await fetchAllTabsViaDrive(auth, sheetId)
-    } else {
-      throw err
+  
+  if (!auth) {
+    tabDataList = await fetchAllTabsViaPublicExport(sheetId)
+  } else {
+    try {
+      tabDataList = await fetchAllTabsViaSheets(auth, sheetId)
+      // If Sheets API returns very few tabs, it may have failed silently
+      if (tabDataList.length === 0) throw new Error('No tabs returned')
+    } catch (err) {
+      const msg = (err as Error).message ?? ''
+      if (
+        msg.includes('Office file') ||
+        msg.includes('not supported for this document') ||
+        msg.includes('No tabs returned')
+      ) {
+        tabDataList = await fetchAllTabsViaDrive(auth, sheetId)
+      } else {
+        console.warn(`[google-sheets] Auth failed (${msg}), trying public export.`)
+        tabDataList = await fetchAllTabsViaPublicExport(sheetId)
+      }
     }
   }
 

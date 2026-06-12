@@ -296,7 +296,7 @@ function CampaignViewPanel({
         {/* Idle — prompt to generate */}
         {event && status === 'idle' && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             className="flex h-full flex-col items-center justify-center text-center"
           >
@@ -322,7 +322,7 @@ function CampaignViewPanel({
 
         {/* Generating state */}
         {event && isGenerating && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+          <motion.div initial={false} animate={{ opacity: 1 }} className="space-y-4">
             {/* Pipeline status */}
             <div className="rounded-xl border border-glass bg-surface-1/30 p-4">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -374,7 +374,7 @@ function CampaignViewPanel({
             {/* Partial content preview for completed platforms */}
             {data?.[activeTab] && (
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 className="relative rounded-xl border border-glass bg-surface-1/30 p-4"
                 style={{ boxShadow: 'inset 0 1px 0 oklch(1 0 0 / 4%)' }}
@@ -391,7 +391,7 @@ function CampaignViewPanel({
         {event && status === 'ready' && data && (
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             className="space-y-4"
@@ -596,7 +596,7 @@ function EventCard({
       {/* Expanded: insight + generate button */}
       {selected && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
+          initial={false}
           animate={{ opacity: 1, height: 'auto' }}
           className="mt-2 pt-2 border-t border-purple/20 space-y-2"
         >
@@ -909,7 +909,7 @@ function AIWorkspacePanel({
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {!displayContent && !isGenerating && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="flex h-full flex-col items-center justify-center text-center"
@@ -945,7 +945,7 @@ function AIWorkspacePanel({
         )}
 
         {(displayContent || isGenerating) && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
               {platformConfig && (
                 <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium', platformConfig.badge)}>
@@ -1428,7 +1428,10 @@ export default function WorkspacePage() {
       }, i * 600)
     })
 
-    // Auto-generate for events ≤7 days (check cache first)
+    // Auto-generate feature is temporarily disabled as it causes the page to 
+    // continuously load into the campaign generation view automatically.
+    // To enable it, uncomment the code below:
+    /*
     upcoming
       .filter(e => e.daysUntil <= 7)
       .slice(0, 2)
@@ -1446,6 +1449,7 @@ export default function WorkspacePage() {
           generateCampaignRef.current(event)
         }
       })
+    */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events.length, eventsLoading])
 
@@ -1578,7 +1582,7 @@ export default function WorkspacePage() {
             {centerMode === 'campaign' ? (
               <motion.div
                 key="campaign"
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
@@ -1594,7 +1598,7 @@ export default function WorkspacePage() {
             ) : (
               <motion.div
                 key="workspace"
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}

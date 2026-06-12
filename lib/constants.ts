@@ -10,8 +10,8 @@ import {
 } from 'lucide-react'
 import type { NavItem, Workspace, CommandItem } from '@/types'
 
-export const APP_NAME = 'Cultural Intelligence Engine'
-export const APP_SHORT_NAME = 'CIE'
+export const APP_NAME = 'LinkedIn Content Reminder'
+export const APP_SHORT_NAME = 'LCR'
 
 export const NAV_ITEMS: NavItem[] = [
   {

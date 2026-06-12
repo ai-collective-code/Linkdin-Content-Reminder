@@ -56,7 +56,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
         <main className="flex-1 overflow-y-auto">
           <motion.div
             key="page-content"
-            initial={pageTransition.initial}
+            initial={false}
             animate={pageTransition.animate}
             exit={pageTransition.exit}
             transition={pageTransition.transition}

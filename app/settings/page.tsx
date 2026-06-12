@@ -197,6 +197,8 @@ function ApiKeysSection() {
       <div className="space-y-4">
         <InputField label="Anthropic API Key" placeholder="sk-ant-..." type="password" defaultValue="••••••••••••••••" />
         <InputField label="Google Sheet ID" placeholder="Your Sheet ID" defaultValue="••••••••••••" />
+        <InputField label="Google API Key (Simpler for Netlify)" placeholder="AIzaSy..." type="password" defaultValue="••••••••••••" />
+        <p className="text-xs text-muted-foreground pt-2">Or use a Service Account (Legacy):</p>
         <InputField label="Google Service Account Email" placeholder="name@project.iam.gserviceaccount.com" defaultValue="••••••••••••" />
       </div>
     </SectionCard>

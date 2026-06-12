@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description:
     'AI-powered cultural intelligence platform for enterprise teams. Decode trends, understand audiences, and create resonant content at scale.',
   keywords: ['cultural intelligence', 'AI', 'analytics', 'trends', 'enterprise'],
-  authors: [{ name: 'CIE Team' }],
+  authors: [{ name: 'LCR Team' }],
   robots: { index: false, follow: false },
 }
 

@@ -253,7 +253,7 @@ function CampaignCard({
       <AnimatePresence>
         {expanded && isReady && data && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
+            initial={false}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
@@ -447,7 +447,7 @@ export default function CampaignStatusPage() {
         {/* Header */}
         <motion.div
           variants={fadeInUp}
-          initial="hidden"
+          initial={false}
           animate="visible"
           className="flex-none border-b border-glass px-6 pt-6 pb-4"
         >
@@ -589,7 +589,7 @@ export default function CampaignStatusPage() {
           ) : (
             <motion.div
               variants={staggerContainer}
-              initial="hidden"
+              initial={false}
               animate="visible"
               className="space-y-3"
             >

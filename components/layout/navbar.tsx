@@ -20,7 +20,7 @@ export function Navbar() {
   return (
     <motion.header
       variants={fadeInDown}
-      initial="hidden"
+      initial={false}
       animate="visible"
       className={cn(
         'sticky top-0 z-30 flex h-14 items-center gap-4 px-4 lg:px-6',
