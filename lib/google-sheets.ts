@@ -269,7 +269,7 @@ function mergeEvents(events: SheetEvent[]): SheetEvent[] {
 interface RawSheetData { rows: string[][]; sheetName: string }
 
 async function fetchAllTabsViaSheets(
-  auth:    ReturnType<typeof getAuthClient>,
+  auth:    Exclude<ReturnType<typeof getAuthClient>, null>,
   sheetId: string,
 ): Promise<RawSheetData[]> {
   const sheets = google.sheets({ version: 'v4', auth })
@@ -304,7 +304,7 @@ async function fetchAllTabsViaSheets(
 
 /* ── Method B: Drive API — downloads once, parses all tabs ─── */
 async function fetchAllTabsViaDrive(
-  auth:    ReturnType<typeof getAuthClient>,
+  auth:    Exclude<ReturnType<typeof getAuthClient>, null>,
   sheetId: string,
 ): Promise<RawSheetData[]> {
   console.log('[google-sheets] Falling back to Drive API (Excel file — all tabs)')
